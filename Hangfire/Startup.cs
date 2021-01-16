@@ -94,7 +94,18 @@ namespace Hangfire
             });
 
             #region Job Scheduling Tasks
-            //recurringJobManager.AddOrUpdate("Insert Employee : Runs Every 1 Min", () => jobscheduler.JobAsync(), "*/1 * * * *");
+            // Recurring Job for every 5 min
+            recurringJobManager.AddOrUpdate("Insert Employee : Runs Every 1 Min", () => jobscheduler.JobAsync(), "*/5 * * * *");
+
+            //Fire and forget job 
+            var jobId =  backgroundJobClient.Enqueue(() => jobscheduler.JobAsync());
+
+            //Continous Job
+            backgroundJobClient.ContinueJobWith(jobId, () => jobscheduler.JobAsync());
+
+            //Schedule Job / Delayed Job
+
+            backgroundJobClient.Schedule(() => jobscheduler.JobAsync(), TimeSpan.FromDays(5));
             #endregion
         }
     }
